@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodTrace — Cloud ERP &amp; Traceability Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="landing">
+
+<header class="board">
+  <div class="board-id">
+    <span class="stamp-mark">FT</span>
+    <div><h1>FoodTrace</h1><p>Cloud ERP &amp; traceability platform</p></div>
+  </div>
+  <a class="board-cta" href="/app">Open the platform →</a>
+</header>
+
+<section class="hero">
+  <div class="hero-stamp">PS-2</div>
+  <h2>The ERP that<br>fills itself.</h2>
+  <p class="hero-sub">A cloud-hosted food manufacturing ERP where stock enters through five channels
+  instead of one keyboard — and every entry becomes a permanent, traceable record.</p>
+  <div class="hero-actions">
+    <a class="cta" href="/app">Open the plant floor</a>
+    <a class="cta ghost" href="#architecture">How it's built</a>
+  </div>
+</section>
+
+<section class="strip">
+  <div class="strip-item"><b>REST API</b><span>Node.js + Express, one service</span></div>
+  <div class="strip-item"><b>Event-sourced</b><span>every change is a logged, replayable event</span></div>
+  <div class="strip-item"><b>FEFO</b><span>first-expiry stock picked automatically</span></div>
+  <div class="strip-item"><b>Cloud-hosted</b><span>deployed on Render, reachable anywhere</span></div>
+</section>
+
+<section class="section">
+  <h3 class="section-h">Ingestion layer, in order of ROI</h3>
+  <p class="section-sub">Five ways stock reaches the ledger. Each card is honest about whether it's a real integration or a stand-in for hardware / a model call not wired up yet.</p>
+  <div class="ingest-grid">
+    <article class="ingest-card">
+      <span class="tag real">Real</span>
+      <h4>Excel / CSV</h4>
+      <p>A rule-based mapper proposes column matches and unit conversion (kg/g, L/ml). Confirm once — the mapping is remembered by header signature and later files with the same columns import automatically.</p>
+    </article>
+    <article class="ingest-card">
+      <span class="tag sim">Simulated</span>
+      <h4>Photos — invoices, GRNs, batch sheets</h4>
+      <p>A photo returns a placeholder JSON extraction in the shape a real vision API would return, for review against the PO before it's saved. No vision model is connected in this build.</p>
+    </article>
+    <article class="ingest-card">
+      <span class="tag real">Real</span>
+      <h4>Barcode / QR labels</h4>
+      <p>The browser's native camera scanner reads a batch label and jumps straight to its trace record. Falls back to manual entry where the browser doesn't support it.</p>
+    </article>
+    <article class="ingest-card">
+      <span class="tag sim">Simulated</span>
+      <h4>Weighing</h4>
+      <p>No scale hardware here — a simulated live reading stands in. The endpoint it posts to is exactly what a real ESP32 (serial/Bluetooth → HTTP) would call, so real hardware drops in without touching the rest of the app.</p>
+    </article>
+    <article class="ingest-card">
+      <span class="tag todo">Not built</span>
+      <h4>Tally XML export</h4>
+      <p>Most Indian SMEs run Tally, but the exact XML schema needs verifying against your version before claiming support — so it isn't built rather than guessed at.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section" id="architecture">
+  <h3 class="section-h">Core design</h3>
+  <div class="design-grid">
+    <div class="design-item">
+      <span class="num">01</span>
+      <h4>Event-sourced stock ledger</h4>
+      <p>Every ingest — manual, CSV, photo, scan or scale — is written as an event with its source, a confidence score and an approver. Lots, batches and shipments are just the current state read off that log, so traceability, recall and audit are the same log, not separate features.</p>
+    </div>
+    <div class="design-item">
+      <span class="num">02</span>
+      <h4>FEFO, not FIFO</h4>
+      <p>Production draws ingredients from released stock in soonest-expiry-first order, automatically, across as many lots as a batch needs.</p>
+    </div>
+    <div class="design-item">
+      <span class="num">03</span>
+      <h4>Forecast → reorder</h4>
+      <p>A simplified linear-trend model (not Prophet/statsmodels — that's a second Python service the demo intentionally skips) feeds <code>forecast × BOM − stock − open POs</code>. Backtest error is shown honestly, small samples included.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="landing-footer">
+  <p>Single Node.js/Express service exposing a JSON REST API (<code>/api/lots</code>, <code>/api/batches</code>, <code>/api/trace/:id</code>, <code>/api/forecast/:product</code>…), deployed to the cloud on Render. Data currently lives in memory — see the README for the PostgreSQL upgrade path.</p>
+  <a class="cta" href="/app">Enter the platform →</a>
+</footer>
+
+</body>
+</html>
